@@ -2,18 +2,27 @@
 @using FNSM.DataLayer;
 @using FNSM.Web.Services.Interfaces;
 
-<PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
-
-@foreach (var activity in Activities)
-{
-	<p>@activity.Description</p>
-}
+<MudContainer MaxWidth="MaxWidth.Medium">
+	<MudTabs Outlined="true" Centered="true">
+		<MudTabPanel Text="Activities" Icon="@Icons.Material.Filled.SportsBaseball" >
+			<div style="display:flex;justify-content:center;align-items:center;margin: 20px 0px 20px 0px;">
+				<MudTooltip Text="Create an activity for Spidey!">
+					<MudFab Color="Color.Default" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Link="/activities/add" />
+				</MudTooltip>
+			</div>
+			<MudPaper>
+				<MudList Clickable="true">
+					@foreach (var activity in Activities)
+					{
+						<MudListItem>@activity.Description</MudListItem>
+					}
+				</MudList>
+			</MudPaper>
+		</MudTabPanel>
+		<MudTabPanel Text="Crimes" Icon="@Icons.Material.Outlined.GppMaybe" />
+	</MudTabs>
+</MudContainer>
 
 @code {
 	[Inject]

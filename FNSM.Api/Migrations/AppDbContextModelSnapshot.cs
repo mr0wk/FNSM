@@ -34,19 +34,13 @@ namespace FNSM.Api.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Activities");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedDate = new DateTime(2023, 7, 13, 13, 13, 55, 275, DateTimeKind.Local).AddTicks(3088),
-                            Description = "My car's gone!"
-                        });
+                    b.ToTable("Activity", (string)null);
                 });
 #pragma warning restore 612, 618
         }

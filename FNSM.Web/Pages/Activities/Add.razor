@@ -1,0 +1,29 @@
+﻿@page "/activities/add"
+@using FNSM.DataLayer;
+@using FNSM.Web.Services.Interfaces;
+
+<MudContainer MaxWidth="MaxWidth.Medium">
+	<EditForm Model="@activity" OnValidSubmit="OnValidSubmit">
+		<DataAnnotationsValidator />
+		<MudTextField Label="Description" HelperText="Min. 10 chars, Max. 100 chars" @bind-Value="activity.Description"
+					  For="@(() => activity.Description)" InputType="InputType.Text" OnlyValidateIfDirty="true" />
+		<MudIconButton Icon="@Icons.Material.Filled.PlaylistAdd" ButtonType="ButtonType.Submit" />
+	</EditForm>
+</MudContainer>
+
+@code {
+	[Inject]
+	public IActivityService ActivityService { get; set; }
+	[Inject]
+	public NavigationManager NavigationManager { get; set; }
+
+	Activity activity = new Activity();
+	bool success;
+
+
+	private async void OnValidSubmit()
+	{
+		await ActivityService.AddActivity(activity);
+		NavigationManager.NavigateTo("/");
+	}
+}

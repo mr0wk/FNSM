@@ -16,8 +16,7 @@ namespace FNSM.Api
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Activity>().HasData(
-                new Activity { Id = 1, Description = "My car's gone!", CreatedDate = DateTime.Now});
+            modelBuilder.Entity<Activity>().ToTable(nameof(Activity));
         }
 
     }
