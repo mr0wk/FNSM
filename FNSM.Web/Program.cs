@@ -17,12 +17,12 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.Requ
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddHttpClient<IActivityService, ActivityService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7198/");
 });
 builder.Services.AddMudServices();
+builder.Services.AddAuthentication("Identity.Application").AddCookie();
 
 var app = builder.Build();
 
@@ -43,6 +43,7 @@ app.UseRouting();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
-app.UseAuthentication();;
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();

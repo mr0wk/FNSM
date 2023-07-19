@@ -1,24 +1,42 @@
 ﻿@page "/"
 @using FNSM.DataLayer;
+@using FNSM.Web.Pages.Activities;
 @using FNSM.Web.Services.Interfaces;
 
-
 <MudContainer MaxWidth="MaxWidth.Medium">
-	<MudTabs Outlined="true" Centered="true">
-		<MudTabPanel Text="Activities" Icon="@Icons.Material.Filled.SportsBaseball" >
+	@if (SelectedActivity != null)
+	{
+		<MudPaper>
 			<div style="display:flex;justify-content:center;align-items:center;margin: 20px 0px 20px 0px;">
-				<MudTooltip Text="Create an activity for Spidey!">
-					<MudFab Color="Color.Default" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" Link="/activities/add" />
-				</MudTooltip>
+				<MudText>
+					@SelectedActivity.Description
+				</MudText>
 			</div>
-			<MudPaper>
-				<MudList Clickable="true">
-					@foreach (var activity in Activities)
-					{
-						<MudListItem>@activity.Description</MudListItem>
-					}
-				</MudList>
-			</MudPaper>
+		</MudPaper>		
+	}
+	<MudTabs Outlined="true" Centered="true">
+		<MudTabPanel Text="Activities" Icon="@Icons.Material.Filled.LocalActivity" >
+			<AuthorizeView>
+				<Authorized>
+					<div style="display:flex;justify-content:center;align-items:center;margin: 20px 0px 20px 0px;">
+						<MudTooltip Text="Create an activity for Spidey!">
+							<MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" 
+								OnClick="@(() => AddActivity())"/>
+						</MudTooltip>
+					</div>
+				</Authorized>
+			</AuthorizeView>
+			@if (Activities.Any())
+			{
+				<MudPaper>
+					<MudList Clickable="true">
+						@foreach (var activity in Activities)
+						{
+							<MudListItem OnClick="@(() => SelectActivity(activity))">@activity.Description</MudListItem>
+						}
+					</MudList>
+				</MudPaper>
+			} 
 		</MudTabPanel>
 		<MudTabPanel Text="Crimes" Icon="@Icons.Material.Outlined.GppMaybe" />
 	</MudTabs>
@@ -27,11 +45,42 @@
 @code {
 	[Inject]
 	public IActivityService ActivityService { get; set; }
+	[Inject]
+	IDialogService DialogService { get; set; }
+	[Inject]
+	NavigationManager NavigationManager { get; set; }
 
-	public IEnumerable<Activity> Activities { get; set; } = Enumerable.Empty<Activity>();
+	private IEnumerable<Activity> Activities { get; set; } = Enumerable.Empty<Activity>();
+	private Activity SelectedActivity { get; set; } = new Activity();
 
 	protected override async Task OnInitializedAsync()
 	{
 		Activities = (await ActivityService.GetActivities()).ToList();
+		SelectedActivity = Activities.FirstOrDefault();
 	}
-}
+
+	private async Task AddActivity()
+	{
+		var dialogOptions = new DialogOptions()
+			{
+				MaxWidth = MaxWidth.Medium,
+				FullWidth = true,
+				Position = DialogPosition.Center
+			};
+		var dialog = await DialogService.ShowAsync<AddActivityDialog>("Add activity", dialogOptions);
+		var result = await dialog.Result;
+
+		if (!result.Canceled)
+		{
+			var description = result.Data.ToString();
+			var activity = new Activity() { Description = description, CreatedDate = DateTime.Now };
+
+			await ActivityService.AddActivity(activity);
+		}
+	}
+
+	private void SelectActivity(Activity activity)
+	{
+		SelectedActivity = activity;	
+	}
+}	

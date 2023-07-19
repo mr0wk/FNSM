@@ -1,0 +1,61 @@
+﻿@using FNSM.DataLayer;
+@using FNSM.Web.Services.Interfaces;
+
+<MudDialog>
+	<TitleContent>
+		<MudText>
+			Add activity
+		</MudText>
+	</TitleContent>
+	<DialogContent>
+		<EditForm EditContext="editContext">
+		<DataAnnotationsValidator />
+		<MudTextField Label="Description" HelperText="Min. 10 chars, Max. 100 chars" @bind-Value="activity.Description"
+					  For="@(() => activity.Description)" InputType="InputType.Text" />
+		</EditForm>
+	</DialogContent>
+	<DialogActions>
+		<MudButton OnClick="Cancel">Cancel</MudButton>
+		<MudButton OnClick="AddActivity" Color="Color.Primary">Add</MudButton>
+	</DialogActions>
+</MudDialog>
+
+@code {
+	[CascadingParameter]
+	public MudDialogInstance MudDialog { get; set; }
+
+	[Inject]
+	ISnackbar Snackbar { get; set; }
+
+	private Activity activity = new Activity();
+	private EditContext editContext;
+
+	protected override async Task OnInitializedAsync()
+	{
+		editContext = new EditContext(activity);
+
+		await base.OnInitializedAsync();
+	}
+
+	private void Cancel()
+	{
+		MudDialog.Cancel();
+	}
+
+	private void AddActivity()
+	{
+		if (editContext.GetValidationMessages().Any() || !editContext.Validate())
+		{
+			editContext.GetValidationMessages().ToList().RemoveAll(item => true);
+
+			return;
+		}
+
+		Snackbar.Add
+		(
+			"Thank you for adding the activity! It will now undergo a review process before being made available.",
+			Severity.Info
+		);
+		MudDialog.Close(DialogResult.Ok(activity.Description));
+	}
+}
