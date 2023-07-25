@@ -4,40 +4,65 @@
 @using FNSM.Web.Services.Interfaces;
 
 <MudContainer MaxWidth="MaxWidth.Medium">
-	@if (SelectedActivity != null)
+	@if (activePanelIndex == 0)
 	{
-		<MudPaper>
-			<div style="display:flex;justify-content:center;align-items:center;margin: 20px 0px 20px 0px;">
+		@if (Activities.Any() && SelectedActivity != null)
+		{
+			<MudPaper Class="mb-2" Square="true" Outlined="true" Height="75px" Style="display: flex; align-items: flex-end;">
 				<MudText>
-					@SelectedActivity.Description
+					<MudIconButton Icon="@Icons.Material.Filled.ArrowRight" Disabled="true"></MudIconButton>@SelectedActivity.Elaboration
 				</MudText>
-			</div>
-		</MudPaper>		
+			</MudPaper>
+		}
 	}
-	<MudTabs Outlined="true" Centered="true">
-		<MudTabPanel Text="Activities" Icon="@Icons.Material.Filled.LocalActivity" >
+	else
+	{
+		
+	}
+	<MudTabs Outlined="true" Centered="true" @bind-ActivePanelIndex="activePanelIndex">
+		<MudTabPanel Text="Activities" Icon="@Icons.Material.Filled.LocalActivity">
 			<AuthorizeView>
 				<Authorized>
-					<div style="display:flex;justify-content:center;align-items:center;margin: 20px 0px 20px 0px;">
+					<div style="display:flex;justify-content:center;align-items:center;margin: 16px 0px 16px 0px;">
 						<MudTooltip Text="Create an activity for Spidey!">
 							<MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" 
-								OnClick="@(() => AddActivity())"/>
+								    OnClick="@(() => AddActivity())"/>
 						</MudTooltip>
 					</div>
 				</Authorized>
 			</AuthorizeView>
+			
 			@if (Activities.Any())
 			{
-				<MudPaper>
-					<MudList Clickable="true">
-						@foreach (var activity in Activities)
-						{
-							<MudListItem OnClick="@(() => SelectActivity(activity))">@activity.Description</MudListItem>
+				<MudPaper Class="mb-2" Square="true" Outlined="true">
+
+					<MudList Clickable="true" @bind-SelectedValue="selectedValue" Color="Color.Primary">
+						@{
+							int i = 0;
+
+							foreach (var activity in Activities.Skip((SelectedDataPage - 1) * RecordsPerPage).Take(RecordsPerPage))
+							{
+								i++;
+								<MudListItem Text="@activity.Description.ToUpper()" Avatar="@Icons.Material.Filled.Image"
+											 OnClick="@(() => SelectActivity(activity))" Value="i" />
+							}
 						}
 					</MudList>
 				</MudPaper>
-			} 
+				
+				<MudPagination Style="display:flex;justify-content:center;align-items:center;margin: 16px 0px 16px 0px;" Variant="Variant.Outlined" Count="@GetPaginatedDataCount()" @bind-Selected="@SelectedDataPage" />
+				
+				<MudPaper Square="true" Outlined="true" Style="text-align:right;">
+					@if (UserIsLoggedIn && SelectedActivity != null && SelectedActivity.UserId.Equals(UserId))
+					{
+						<MudButton Class="my-2 mr-2" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error"
+						           OnClick="@(() => DeleteActivity(SelectedActivity.Id))">Delete</MudButton>
+						<MudButton Class="my-2 mr-2" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Edit" Color="Color.Primary">Edit</MudButton>
+					}
+				</MudPaper>
+			}
 		</MudTabPanel>
+
 		<MudTabPanel Text="Crimes" Icon="@Icons.Material.Outlined.GppMaybe" />
 	</MudTabs>
 </MudContainer>
@@ -49,38 +74,73 @@
 	IDialogService DialogService { get; set; }
 	[Inject]
 	NavigationManager NavigationManager { get; set; }
+	[Inject]
+	AuthenticationStateProvider AuthenticationStateProvider { get; set; }
 
 	private IEnumerable<Activity> Activities { get; set; } = Enumerable.Empty<Activity>();
-	private Activity SelectedActivity { get; set; } = new Activity();
+	private Activity? SelectedActivity { get; set; } = new Activity();
+	private string? UserId { get; set; } = string.Empty;
+	private bool UserIsLoggedIn { get; set; } = false;
+	private int SelectedDataPage { get; set; } = 1;
+	private int RecordsPerPage { get; set; } = 3;
+
+	int activePanelIndex = 0;
+	object selectedValue = 1;
 
 	protected override async Task OnInitializedAsync()
 	{
 		Activities = (await ActivityService.GetActivities()).ToList();
 		SelectedActivity = Activities.FirstOrDefault();
+		UserId = await GetUserId();
+		UserIsLoggedIn = UserId != null;
+	}
+
+	private async Task<string?> GetUserId()
+	{
+		var user = (await AuthenticationStateProvider.GetAuthenticationStateAsync()).User;
+		var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+
+		return userId;
 	}
 
 	private async Task AddActivity()
 	{
 		var dialogOptions = new DialogOptions()
-			{
-				MaxWidth = MaxWidth.Medium,
-				FullWidth = true,
-				Position = DialogPosition.Center
-			};
+		{
+			MaxWidth = MaxWidth.Medium,
+			FullWidth = true,
+			Position = DialogPosition.Center
+		};
 		var dialog = await DialogService.ShowAsync<AddActivityDialog>("Add activity", dialogOptions);
 		var result = await dialog.Result;
 
 		if (!result.Canceled)
 		{
-			var description = result.Data.ToString();
-			var activity = new Activity() { Description = description, CreatedDate = DateTime.Now };
+			var activity = result.Data as Activity;
 
-			await ActivityService.AddActivity(activity);
+			if (activity != null)
+			{
+				activity.CreatedDate = DateTime.Now;
+				activity.UserId = UserId;
+
+				await ActivityService.AddActivity(activity);
+			}
 		}
 	}
 
 	private void SelectActivity(Activity activity)
 	{
 		SelectedActivity = activity;	
+	}
+
+	private int GetPaginatedDataCount()
+	{
+		return (int)Math.Ceiling((double)Activities.Count() / RecordsPerPage);
+	}
+
+	private async void DeleteActivity(int id)
+	{
+		await ActivityService.DeleteActivity(id);
+		NavigationManager.NavigateTo("/", true);
 	}
 }	

@@ -93,7 +93,7 @@ namespace FNSM.Api.Controllers
 
                 if (activityToDelete == null) { return NotFound($"Activity with Id = {id} not found"); }
 
-                _activityRepository.DeleteActivity(id);
+                await _activityRepository.DeleteActivity(id);
 
                 return NoContent();
             }

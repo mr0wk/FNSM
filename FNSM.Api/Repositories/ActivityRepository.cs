@@ -22,14 +22,14 @@ namespace FNSM.Api.Repositories
             return result.Entity;
         }
 
-        public async void DeleteActivity(int id)
+        public async Task DeleteActivity(int id)
         {
             var result = await _appDbContext.Activities
                 .FirstOrDefaultAsync(a => a.Id == id);
 
             if (result != null)
             {
-                _appDbContext.Activities.Remove(result);
+                _appDbContext.Activities.Remove(result);				
                 await _appDbContext.SaveChangesAsync();
             }
         }

@@ -8,6 +8,6 @@ namespace FNSM.Api.Repositories.Interfaces
         Task<Activity> GetActivityById(int id);
         Task<Activity> AddActivity(Activity activity);
         Task<Activity> UpdateActivity(Activity activity);
-        void DeleteActivity(int id);
+        Task DeleteActivity(int id);
     }
 }

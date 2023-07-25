@@ -33,5 +33,10 @@ namespace FNSM.Web.Services
 
 			return response;
 		}
+
+        public async Task<HttpResponseMessage> DeleteActivity(int id)
+        {
+            return await _httpClient.DeleteAsync($"api/activities/{id}");
+        }
 	}
 }

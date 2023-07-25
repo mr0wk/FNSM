@@ -9,9 +9,11 @@
 	</TitleContent>
 	<DialogContent>
 		<EditForm EditContext="editContext">
-		<DataAnnotationsValidator />
-		<MudTextField Label="Description" HelperText="Min. 10 chars, Max. 100 chars" @bind-Value="activity.Description"
-					  For="@(() => activity.Description)" InputType="InputType.Text" />
+			<DataAnnotationsValidator />
+			<MudTextField Label="Description" HelperText="Provide a brief overview of the activity. Be clear and concise, highlighting its purpose and key features." @bind-Value="activity.Description"
+				          For="@(() => activity.Description)" InputType="InputType.Text" />
+			<MudTextField Label="Elaboration" HelperText="Add more details and context to the activity description." @bind-Value="activity.Elaboration"
+						  For="@(() => activity.Elaboration)" InputType="InputType.Text" />
 		</EditForm>
 	</DialogContent>
 	<DialogActions>
@@ -56,6 +58,6 @@
 			"Thank you for adding the activity! It will now undergo a review process before being made available.",
 			Severity.Info
 		);
-		MudDialog.Close(DialogResult.Ok(activity.Description));
+		MudDialog.Close(DialogResult.Ok(activity));
 	}
 }

@@ -1,9 +1,7 @@
 ﻿<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <div class="navbar-brand mb-5">
-            <MudBadge Origin="Origin.BottomRight" Content="@badgeContent" Color="Color.Primary">
-                <MudText>FNSM App</MudText>
-            </MudBadge>
+            FNSM App
         </div>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
@@ -21,25 +19,25 @@
         <AuthorizeView>
             <Authorized>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="account">
+                    <NavLink class="nav-link" href="/Identity/Account/Manage">
                         <span class="oi oi-person" aria-hidden="true"></span> Account
                     </NavLink>
                 </div>
 
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/identity/account/logout" Match="NavLinkMatch.All">
+                    <NavLink class="nav-link" href="/Identity/Account/Logout" Match="NavLinkMatch.All">
                         <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
                     </NavLink>
                 </div>
             </Authorized>
             <NotAuthorized>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/identity/account/register" Match="NavLinkMatch.All">
+                    <NavLink class="nav-link" href="/Identity/Account/Register" Match="NavLinkMatch.All">
                         <span class="oi oi-pencil" aria-hidden="true"></span> Register
                     </NavLink>
                 </div>
                 <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="/identity/account/login" Match="NavLinkMatch.All">
+                    <NavLink class="nav-link" href="/Identity/Account/Login" Match="NavLinkMatch.All">
                         <span class="oi oi-account-login" aria-hidden="true"></span> Login
                     </NavLink>
                 </div>
@@ -50,7 +48,6 @@
 
 @code {
     private bool collapseNavMenu = true;
-    private string badgeContent = "Beta";
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
