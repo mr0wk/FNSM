@@ -1,4 +1,5 @@
 ﻿using FNSM.Api.Repositories.Interfaces;
+using FNSM.Api.Services.Interfaces;
 using FNSM.DataLayer;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,11 +9,11 @@ namespace FNSM.Api.Controllers
     [ApiController]
     public class ActivitiesController : ControllerBase
     {
-        private readonly IActivityRepository _activityRepository;
+        private readonly IActivitiesService _activitiesService;
 
-        public ActivitiesController(IActivityRepository activityRepository)
+        public ActivitiesController(IActivitiesService activitiesService)
         {
-            _activityRepository = activityRepository;
+			_activitiesService = activitiesService;
         }
 
         [HttpGet]
@@ -20,7 +21,7 @@ namespace FNSM.Api.Controllers
         {
             try
             {
-                return Ok(await _activityRepository.GetActivities());
+                return Ok(await _activitiesService.GetActivities());
             }
             catch (Exception ex)
             {
@@ -33,7 +34,7 @@ namespace FNSM.Api.Controllers
         {
             try
             {
-                var activity = await _activityRepository.GetActivityById(id);
+                var activity = await _activitiesService.GetActivityById(id);
 
                 if (activity == null) { return NotFound(); }
 
@@ -52,7 +53,7 @@ namespace FNSM.Api.Controllers
             {
                 if (activity == null) { return BadRequest(); }
 
-                var addedActivity = await _activityRepository.AddActivity(activity);
+                var addedActivity = await _activitiesService.AddActivity(activity);
 
                 return CreatedAtAction(nameof(AddActivity), new { id = addedActivity.Id }, addedActivity);
             }
@@ -70,7 +71,7 @@ namespace FNSM.Api.Controllers
 
                 if (id != activity.Id) { return BadRequest("Activity Id mismatch"); }
 
-                var activityToUpdate = await _activityRepository.UpdateActivity(activity);
+                var activityToUpdate = await _activitiesService.UpdateActivity(activity);
 
                 if (activityToUpdate == null) { return NotFound($"Activity with Id = {id} not found"); }
 
@@ -89,11 +90,11 @@ namespace FNSM.Api.Controllers
         {
             try
             {
-                var activityToDelete = await _activityRepository.GetActivityById(id);
+                var activityToDelete = await _activitiesService.GetActivityById(id);
 
                 if (activityToDelete == null) { return NotFound($"Activity with Id = {id} not found"); }
 
-                await _activityRepository.DeleteActivity(id);
+                await _activitiesService.DeleteActivity(id);
 
                 return NoContent();
             }

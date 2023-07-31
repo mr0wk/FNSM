@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FNSM.Api.Repositories
 {
-    public class ActivityRepository : IActivityRepository
+    public class ActivitiesRepository : IActivitiesRepository
     {
         private readonly AppDbContext _appDbContext;
 
-        public ActivityRepository(AppDbContext appDbContext)
+        public ActivitiesRepository(AppDbContext appDbContext)
         {
             _appDbContext = appDbContext;
         }

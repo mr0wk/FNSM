@@ -1,6 +1,8 @@
 using FNSM.Api;
 using FNSM.Api.Repositories;
 using FNSM.Api.Repositories.Interfaces;
+using FNSM.Api.Services;
+using FNSM.Api.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +17,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DbConnection"));
 });
-builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IActivitiesRepository, ActivitiesRepository>();
+builder.Services.AddScoped<IActivitiesService, ActivitiesService>();
 
 var app = builder.Build();
 
